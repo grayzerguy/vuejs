@@ -1,12 +1,18 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 
 const app = express();
 
 
+app.use(express.json());
+app.use(cors({
+  origin: "http://localhost:3000", // Adjust this to your frontend's URL
+  }));
 
 
-app.listen(3000, () => {
-    console.log("Server is running on http://localhost:3000");
+
+app.use(cors());
+
+app.get("/", (req : Request, res: Response) => {
+  res.send("Hello from Node Admin!");
 });
-
