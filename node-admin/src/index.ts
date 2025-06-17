@@ -1,23 +1,14 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import cors from "cors";
-import { routes } from "./routes";
+import router from "./routes";
 
 const app = express();
 
-
 app.use(express.json());
-app.use(cors({
-    origin: "http://localhost:3000", // Adjust this to your frontend's URL
-}));
+app.use(cors());
 
-
-
-
-routes(app);
+app.use(router);
 
 app.listen(8000, () => {
-    console.log("Server is running on port 8000");
+  console.log("Server is running on port 8000");
 });
-
-
-
