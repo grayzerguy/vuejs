@@ -6,5 +6,10 @@ import { Request, Response } from 'express';
    res.send(req.body);
 }
 
+// function Register1(req:Request, res: Response) {
 
+//     res.send(req.body)
+// }
+
+// export default Register1
 
