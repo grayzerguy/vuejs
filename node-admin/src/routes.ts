@@ -1,12 +1,8 @@
-
-// routes.ts
 import { Router } from "express";
 import { Register } from "./controller/auth.controller";
-//import { Register } from "./controllers/auth.controller";
 
 const router = Router();
 
-router.post("/api/register", Register);
+router.post("/register", Register); // <--- הורד את /api
 
 export default router;
-
