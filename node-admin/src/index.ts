@@ -2,10 +2,12 @@ import express from "express";
 import cors from "cors";
 import router from "./routes";
 import { createConnection } from "typeorm";
-import { Connection } from "mysql2/typings/mysql/lib/Connection";
+
 
 
 createConnection().then(connection => {
+
+
 
   const app = express();
   // שימוש ב־express.json() כדי לפרש בקשות JSON – חובה ל־req.body לעבוד

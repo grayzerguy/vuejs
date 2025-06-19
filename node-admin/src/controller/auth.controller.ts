@@ -3,13 +3,15 @@ import { Request, Response, NextFunction } from "express";
 
 // ייבוא סכמת הולידציה שהגדרת עם Joi
 import { RegisterValidation } from "../user-validation/register.validation";
+import { getManager } from "typeorm";
+import { User } from "../entity/user.entity";
 
 // פונקציית בקר (controller) שמטפלת בהרשמה
-export const Register = (
+export const Register = async (
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
+) => {
   // קבלת גוף הבקשה (מה-Client)
   const body = req.body;
   // ולידציה באמצעות Joi
@@ -29,6 +31,15 @@ export const Register = (
     });
     return;
   }
+
+  const repository = getManager().getRepository<User>(User);
+  await repository.save({
+    first_name: body.first_name,
+    last_name: body.last_name,
+    email: body.email,
+    password: body.password
+
+  })
   // כל הנתונים תקינים – הרשמה הצליחה
   res.status(200).json({
     message: "Registration successful",
