@@ -5,6 +5,7 @@ import { Request, Response, NextFunction } from "express";
 import { RegisterValidation } from "../user-validation/register.validation";
 import { getManager } from "typeorm";
 import { User } from "../entity/user.entity";
+import bcryptjs from "bcryptjs";
 
 // פונקציית בקר (controller) שמטפלת בהרשמה
 export const Register = async (
@@ -37,7 +38,7 @@ export const Register = async (
     first_name: body.first_name,
     last_name: body.last_name,
     email: body.email,
-    password: body.password
+    password: await bcryptjs.hash(body.password, 10)
 
   })
   // כל הנתונים תקינים – הרשמה הצליחה
