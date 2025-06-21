@@ -34,20 +34,27 @@ export const Register = async (
   }
 
   const repository = getManager().getRepository<User>(User);
-  await repository.save({
+
+
+  const { password, ...user } = await repository.save({
     first_name: body.first_name,
     last_name: body.last_name,
     email: body.email,
     password: await bcryptjs.hash(body.password, 10)
 
   })
+
+ 
   // כל הנתונים תקינים – הרשמה הצליחה
-  res.status(200).json({
-    message: "Registration successful",
-    data: {
-      email: body.email, // מחזיר רק את המייל לדוגמה – לא מחזיר סיסמה!
-    },
-  });
+  // res.status(200).json({
+  //   message: "Registration successful",
+  //   data: {
+  //     email: body.email, // מחזיר רק את המייל לדוגמה – לא מחזיר סיסמה!
+      
+  //   },
+  // });
+
+  res.send(user)
 };
 
 
