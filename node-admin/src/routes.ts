@@ -2,6 +2,7 @@
 import { Router } from "express";
 // ייבוא פונקציית הטיפול בהרשמה מה-controller
 import { AuthenticatedUser, Login, Logout, Register } from "./controller/auth.controller";
+import { console } from "inspector";
 // יצירת מופע חדש של Router
 const router = Router();
 
@@ -11,3 +12,5 @@ router.get('/user/', AuthenticatedUser  as any);
 router.post('/logout', Logout );
 
 export default router;
+
+console.log("✅ Routes are set up");
