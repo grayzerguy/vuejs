@@ -89,11 +89,6 @@ export const Login = async (
       httpOnly: true,
       maxAge: 24 * 3600000
     });
-
-
-
-
-
     return res.send({ message: "success" });
 
   } catch (err) {
@@ -101,3 +96,8 @@ export const Login = async (
     return res.status(500).send({ message: "Internal server error" });
   }
 };
+
+export const AuthenticatedUser = async (req: Request, res: Response) => {
+  const { password, ...user } = req['user'];
+  res.send(user);
+}
