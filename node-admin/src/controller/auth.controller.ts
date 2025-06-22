@@ -6,7 +6,7 @@ import { RegisterValidation } from "../user-validation/register.validation";
 import { getManager } from "typeorm";
 import { User } from "../entity/user.entity";
 import bcryptjs from "bcryptjs";
-import { sign } from "jsonwebtoken";
+import { sign, verify } from "jsonwebtoken";
 
 // פונקציית בקר (controller) שמטפלת בהרשמה
 export const Register = async (
@@ -81,7 +81,7 @@ export const Login = async (
 
     const token = sign(
       { id: user.id },
-      process.env.JWT_SECRET || "default_secret",
+      "secret",
       { expiresIn: "1h" }
     );
 
@@ -97,7 +97,27 @@ export const Login = async (
   }
 };
 
+
 export const AuthenticatedUser = async (req: Request, res: Response) => {
-  const { password, ...user } = req['user'];
-  res.send(user);
-}
+  try {
+    const token = req.cookies["jwt"];
+    if (!token) {
+      return res.status(401).send({ message: "Unauthorized - No token" });
+    }
+
+    // מוודאים שהטוקן תקין
+    const payload: any = verify(token, process.env.JWT_SECRET || "secret");
+
+    const repository = getManager().getRepository(User);
+    const { password, ...user } = await repository.findOne({ where: { id: payload.id } });
+
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
+
+    res.send(user);
+
+  } catch (error) {
+    return res.status(401).send({ message: "Unauthorized - Invalid or expired token" });
+  }
+};

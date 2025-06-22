@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import router from "./routes";
 import { createConnection } from "typeorm";
+import cookieParser from "cookie-parser";
 
 
 
@@ -13,6 +14,7 @@ createConnection().then(connection => {
   // שימוש ב־express.json() כדי לפרש בקשות JSON – חובה ל־req.body לעבוד
   app.use(express.json());
   // הגדרת CORS: מאפשר לשלוח בקשות מהקליינט (בד"כ מ־localhost:3000 או מהפקת production)
+  app.use(cookieParser());
   app.use(cors({
     credentials: true, // מאפשר שליחת cookies או headers כמו Authorization
     origin: ["http://localhost:3000"] //process.env.CLIENT_URL || אם מוגדר ב־.env ישתמש בו, אחרת localhost
