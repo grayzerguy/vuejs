@@ -121,3 +121,11 @@ export const AuthenticatedUser = async (req: Request, res: Response) => {
     return res.status(401).send({ message: "Unauthorized - Invalid or expired token" });
   }
 };
+
+export const Logout = async (req: Request, res: Response) => {
+  res.cookie('jwt', '', { maxAge: 0 });
+
+  res.send({
+    message: 'logout success'
+  })
+}
