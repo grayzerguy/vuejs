@@ -42,8 +42,7 @@ export const Register = async (
       first_name: body.first_name,
       last_name: body.last_name,
       email: body.email,
-      password: await bcryptjs.hash(body.password, 10)
-
+      password: await bcryptjs.hash(body.password, parseInt(process.env.SALT_HASH))
     })
 
 
@@ -81,7 +80,7 @@ export const Login = async (
 
     const token = sign(
       { id: user.id },
-      "secret",
+      "process.env.JWT_SECRET",
       { expiresIn: "1h" }
     );
 
@@ -106,7 +105,7 @@ export const AuthenticatedUser = async (req: Request, res: Response) => {
     }
 
     // מוודאים שהטוקן תקין
-    const payload: any = verify(token, process.env.JWT_SECRET || "secret");
+    const payload: any = verify(token, process.env.JWT_SECRET);
 
     const repository = getManager().getRepository(User);
     const { password, ...user } = await repository.findOne({ where: { id: payload.id } });
