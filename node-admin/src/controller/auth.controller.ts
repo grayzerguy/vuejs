@@ -44,17 +44,37 @@ export const Register = async (
 
   })
 
- 
-  // כל הנתונים תקינים – הרשמה הצליחה
-  // res.status(200).json({
-  //   message: "Registration successful",
-  //   data: {
-  //     email: body.email, // מחזיר רק את המייל לדוגמה – לא מחזיר סיסמה!
-      
-  //   },
-  // });
 
-  res.send(user)
+  res.send(user);
+}// מחזיר את המשתמש שנוצר (ללא סיסמה)
+
+export const Login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+
+  try {
+
+    const repository = getManager().getRepository(User);
+    const user = await repository.findOne({ where: { email: req.body.email } })
+
+    if (!user) {
+      res.status(404).send({
+        message: "invalid credentials!"
+      })
+    }
+    if (!await bcryptjs.compare(req.body.password, user.password)) {
+      res.status(400).send({
+        message: "invalid credentials!"
+      })
+    }
+    const { password, ...data } = user
+    res.send(data)
+
+  } catch (error) {
+    // Handle error appropriately, e.g.:
+    res.status(500).send({ message: "Internal server error" });
+  }
 };
-
 
