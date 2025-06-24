@@ -1,16 +1,21 @@
-// ייבוא Router מתוך Express – מאפשר להגדיר קבוצת נתיבים נפרדת
 import { Router } from "express";
-// ייבוא פונקציית הטיפול בהרשמה מה-controller
+
+import { AuthMiddleware } from "./middleware/auth.middleware";
 import { AuthenticatedUser, Login, Logout, Register } from "./controller/auth.controller";
-import { console } from "inspector";
-// יצירת מופע חדש של Router
+import { authRateLimiter } from "./middleware/rate-limit.middleware";
+
 const router = Router();
 
-router.post("/register", Register);
-router.post("/login", Login as any);
-router.get('/user/', AuthenticatedUser  as any);
-router.post('/logout', Logout );
+// הרשמה
+router.post("/register", authRateLimiter, Register);
+
+// התחברות
+router.post("/login", authRateLimiter, Login);
+
+// משתמש מחובר (דורש טוקן jwt)
+router.get("/user", AuthMiddleware, AuthenticatedUser);
+
+// יציאה (מנקה את ה-cookie)
+router.post("/logout", AuthMiddleware, Logout);
 
 export default router;
-
-console.log("✅ Routes are set up");

@@ -2,34 +2,44 @@ require('dotenv').config();
 
 import express from "express";
 import cors from "cors";
-import router from "./routes";
-import { createConnection } from "typeorm";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
+import { createConnection } from "typeorm";
+import router from "./routes";
 
-
-
-createConnection().then(connection => {
-
-
-
+createConnection().then(() => {
   const app = express();
-  // שימוש ב־express.json() כדי לפרש בקשות JSON – חובה ל־req.body לעבוד
-  app.use(express.json());
-  // הגדרת CORS: מאפשר לשלוח בקשות מהקליינט (בד"כ מ־localhost:3000 או מהפקת production)
-  app.use(cookieParser());
-  app.use(cors({
-    credentials: true, // מאפשר שליחת cookies או headers כמו Authorization
-    origin: ["http://localhost:3000"] //process.env.CLIENT_URL || אם מוגדר ב־.env ישתמש בו, אחרת localhost
-  }));
-  // כל הנתיבים מתחילים ב־/api – למשל /api/register, /api/login וכו’
-  app.use("/api", router);
-  // הפעלת השרת על פורט 8000
-  app.listen(8000, () => {
-    console.log("✅ Server is running on port 8000");
+
+  // 📦 אבטחה עם helmet
+  app.use(helmet());
+
+  // 🛡️ הגבלת קצב הבקשות – במיוחד ל־login ו־register
+  const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 דקות
+    max: 5,
+    message: {
+      message: "Too many requests from this IP, please try again later.",
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
   });
 
 
-})
+  app.use(express.json());
+  app.use(cookieParser());
+  app.use(cors({
+    credentials: true,
+    origin: ["http://localhost:3000"],
+  }));
+
+  app.use("/api", router);
+
+  app.listen(8000, () => {
+    console.log("✅ Server is running on port 8000");
+  });
+});
+
 
 
 

@@ -1,130 +1,86 @@
-// ייבוא סוגי הבקשה/תגובה/next מ-Express
-import { Request, Response, NextFunction } from "express";
-
-// ייבוא סכמת הולידציה שהגדרת עם Joi
-import { RegisterValidation } from "../user-validation/register.validation";
+import { Request, Response } from "express";
 import { getManager } from "typeorm";
-import { User } from "../entity/user.entity";
 import bcryptjs from "bcryptjs";
 import { sign, verify } from "jsonwebtoken";
+import { RegisterValidation } from "../user-validation/register.validation";
+import { User } from "../entity/user.entity";
 
-// פונקציית בקר (controller) שמטפלת בהרשמה
-export const Register = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const Register = async (req: Request, res: Response): Promise<void> => {
+  const body = req.body;
+
+  const { error } = RegisterValidation.validate(body);
+  if (error) {
+    res.status(400).json({
+      error: error.details.map((e) => e.message),
+    });
+    return;
+  }
+
+  const hashedPassword = await bcryptjs.hash(body.password, 10);
+
+  const repository = getManager().getRepository(User);
+  const user = repository.create({
+    first_name: body.first_name,
+    last_name: body.last_name,
+    email: body.email,
+    password: hashedPassword,
+  });
+
+  await repository.save(user);
+
+  const { id, email, first_name, last_name } = user;
+  res.status(201).json({
+    message: "Registration successful",
+    data: { id, email, first_name, last_name },
+  });
+};
+
+export const Login = async (req: Request, res: Response): Promise<void> => {
   try {
-    // קבלת גוף הבקשה (מה-Client)
-    const body = req.body;
-    // ולידציה באמצעות Joi
-    const { error } = RegisterValidation.validate(body);
-    // אם יש שגיאות הולידציה – החזר שגיאת 400 עם רשימת הודעות
-    if (error) {
-      res.status(400).json({
-        error: error.details.map((e) => e.message), // מחזיר את כל השגיאות כמערך
-      });
-      return; // חשוב לעצור את המשך הפונקציה
-    }
+    const repository = getManager().getRepository(User);
+    const user = await repository.findOne({ where: { email: req.body.email } });
 
-    // בדיקה אם הסיסמאות לא תואמות (מתבצעת ידנית כאן, כי Joi לא בודק התאמה בין שדות כברירת מחדל)
-    if (body.password !== body.password_confirm) {
-      res.status(400).json({
-        error: "Passwords do not match",
-      });
+    if (!user || !(await bcryptjs.compare(req.body.password, user.password))) {
+      res.status(400).send({ message: "Invalid credentials!" });
       return;
     }
 
-    const repository = getManager().getRepository<User>(User);
-
-
-    const { password, ...user } = await repository.save({
-      first_name: body.first_name,
-      last_name: body.last_name,
-      email: body.email,
-      password: await bcryptjs.hash(body.password, parseInt(process.env.SALT_HASH))
-    })
-
-
-    res.send(user);
-  } catch (error) {
-    // Handle error appropriately, e.g.:
-    res.status(500).send({ message: "Internal server error" });
-  }
-}
-
-export const Login = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<Response | void> => {
-  try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).send({ message: "email and password are required" });
-    }
-
-    const repository = getManager().getRepository(User);
-    const user = await repository.findOne({ where: { email } });
-
-    if (!user) {
-      return res.status(404).send({ message: "invalid credentials" });
-    }
-
-    const isMatch = await bcryptjs.compare(password, user.password);
-
-    if (!isMatch) {
-      return res.status(400).send({ message: "invalid credentials" });
-    }
-
-    const token = sign(
-      { id: user.id },
-      "process.env.JWT_SECRET",
-      { expiresIn: "1h" }
-    );
+    const token = sign({ id: user.id }, process.env.JWT_SECRET || "secret", {
+      expiresIn: "1h",
+    });
 
     res.cookie("jwt", token, {
       httpOnly: true,
-      maxAge: 24 * 3600000
+      maxAge: 24 * 3600000,
     });
-    return res.send({ message: "success" });
 
-  } catch (err) {
-    console.error("Login error:", err);
-    return res.status(500).send({ message: "Internal server error" });
+    res.send({ message: "success" });
+  } catch (error) {
+    res.status(500).send({ message: "Internal server error" });
   }
 };
 
-
-export const AuthenticatedUser = async (req: Request, res: Response) => {
+export const AuthenticatedUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const token = req.cookies["jwt"];
-    if (!token) {
-      return res.status(401).send({ message: "Unauthorized - No token" });
-    }
-
-    // מוודאים שהטוקן תקין
-    const payload: any = verify(token, process.env.JWT_SECRET);
+    const jwt = req.cookies["jwt"];
+    const payload: any = verify(jwt, process.env.JWT_SECRET || "secret");
 
     const repository = getManager().getRepository(User);
-    const { password, ...user } = await repository.findOne({ where: { id: payload.id } });
+    const user = await repository.findOne({ where: { id: payload.id } });
 
     if (!user) {
-      return res.status(404).send({ message: "User not found" });
+      res.status(404).json({ message: "User not found" });
+      return;
     }
 
-    res.send(user);
-
+    const { id, email, first_name, last_name } = user;
+    res.send({ id, email, first_name, last_name });
   } catch (error) {
-    return res.status(401).send({ message: "Unauthorized - Invalid or expired token" });
+    res.status(401).json({ message: "Unauthenticated" });
   }
 };
 
-export const Logout = async (req: Request, res: Response) => {
-  res.cookie('jwt', '', { maxAge: 0 });
-
-  res.send({
-    message: 'logout success'
-  })
-}
+export const Logout = async (req: Request, res: Response): Promise<void> => {
+  res.cookie("jwt", "", { maxAge: 0 });
+  res.send({ message: "success" });
+};
