@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn  } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn  } from "typeorm";
 
 
 
@@ -20,4 +20,10 @@ export class User {
 
     @Column()
     password: string;
+
+    @CreateDateColumn()
+    created_at: Date; // ← זה יתווסף אוטומטית ע"י TypeORM
 }
+
+
+

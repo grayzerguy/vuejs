@@ -1,9 +1,13 @@
 import { Request, Response } from "express";
 import { getManager } from "typeorm";
+
 import bcryptjs from "bcryptjs";
 import { sign, verify } from "jsonwebtoken";
 import { RegisterValidation } from "../user-validation/register.validation";
+
 import { User } from "../entity/user.entity";
+import { formatUserResponse } from "../utils/format";
+import { sanitizeUserUpdate } from "../utils/sanitize";
 
 export const Register = async (req: Request, res: Response): Promise<void> => {
   const body = req.body;
@@ -16,9 +20,16 @@ export const Register = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
+  const repository = getManager().getRepository(User);
+
+  const existingUser = await repository.findOne({ where: { email: body.email } });
+  if (existingUser) {
+    res.status(400).json({ message: "Email is already in use" });
+    return;
+  }
+
   const hashedPassword = await bcryptjs.hash(body.password, 10);
 
-  const repository = getManager().getRepository(User);
   const user = repository.create({
     first_name: body.first_name,
     last_name: body.last_name,
@@ -28,10 +39,9 @@ export const Register = async (req: Request, res: Response): Promise<void> => {
 
   await repository.save(user);
 
-  const { id, email, first_name, last_name } = user;
   res.status(201).json({
     message: "Registration successful",
-    data: { id, email, first_name, last_name },
+    data: formatUserResponse(user),
   });
 };
 
@@ -73,8 +83,7 @@ export const AuthenticatedUser = async (req: Request, res: Response): Promise<vo
       return;
     }
 
-    const { id, email, first_name, last_name } = user;
-    res.send({ id, email, first_name, last_name });
+    res.send(formatUserResponse(user));
   } catch (error) {
     res.status(401).json({ message: "Unauthenticated" });
   }
@@ -83,4 +92,24 @@ export const AuthenticatedUser = async (req: Request, res: Response): Promise<vo
 export const Logout = async (req: Request, res: Response): Promise<void> => {
   res.cookie("jwt", "", { maxAge: 0 });
   res.send({ message: "success" });
+};
+
+
+export const updateUser = async (req: Request, res: Response): Promise<void> => {
+  const user = req["user"];
+  if (!user) {
+    res.status(401).send({ message: "Unauthorized" });
+    return;
+  }
+
+  let updateData = sanitizeUserUpdate(req.body);
+
+  if (updateData.password) {
+    updateData.password = await bcryptjs.hash(updateData.password, 10);
+  }
+
+  const repository = getManager().getRepository(User);
+  await repository.update(user.id, updateData);
+
+  res.send({ message: "User updated successfully" });
 };

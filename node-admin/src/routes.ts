@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import { AuthMiddleware } from "./middleware/auth.middleware";
-import { AuthenticatedUser, Login, Logout, Register } from "./controller/auth.controller";
+import { AuthenticatedUser, Login, Logout, Register, updateUser } from "./controller/auth.controller";
 import { authRateLimiter } from "./middleware/rate-limit.middleware";
 
 const router = Router();
@@ -17,5 +17,7 @@ router.get("/user", AuthMiddleware, AuthenticatedUser);
 
 // יציאה (מנקה את ה-cookie)
 router.post("/logout", AuthMiddleware, Logout);
+
+router.put("/update-user", AuthMiddleware, authRateLimiter, updateUser);
 
 export default router;
