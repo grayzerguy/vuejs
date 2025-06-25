@@ -18,6 +18,7 @@
     "@types/helmet": "^0.0.48",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.0.3",
+    "@types/nodemailer": "^6.4.17",
     "bcryptjs": "^3.0.2",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
@@ -35,6 +36,7 @@
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.1",
+    "nodemailer": "^7.0.3",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.24"
   }

@@ -8,6 +8,8 @@ import { RegisterValidation } from "../user-validation/register.validation";
 import { User } from "../entity/user.entity";
 import { formatUserResponse } from "../utils/format";
 import { sanitizeUserUpdate } from "../utils/sanitize";
+import { ChangePasswordValidation, ForgotPasswordValidation } from "../user-validation/update.validation";
+import { sendEmail } from "../utils/send-email";
 
 export const Register = async (req: Request, res: Response): Promise<void> => {
   const body = req.body;
@@ -55,10 +57,9 @@ export const Login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const token = sign({ id: user.id }, process.env.JWT_SECRET || "secret", {
+    const token = sign({ id: user.id }, process.env.JWT_SECRET!, {
       expiresIn: "1h",
     });
-
     res.cookie("jwt", token, {
       httpOnly: true,
       maxAge: 24 * 3600000,
@@ -89,12 +90,15 @@ export const AuthenticatedUser = async (req: Request, res: Response): Promise<vo
   }
 };
 
+
+
 export const Logout = async (req: Request, res: Response): Promise<void> => {
-  res.cookie("jwt", "", { maxAge: 0 });
-  res.send({ message: "success" });
+  res.cookie("jwt", "", {
+    httpOnly: true,
+    maxAge: 0,
+  });
+  res.send({ message: "Logged out successfully" });
 };
-
-
 export const updateUser = async (req: Request, res: Response): Promise<void> => {
   const user = req["user"];
   if (!user) {
@@ -112,4 +116,65 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
   await repository.update(user.id, updateData);
 
   res.send({ message: "User updated successfully" });
+};
+
+export const ChangePassword = async (req: Request, res: Response): Promise<void> => {
+  const user = req["user"];
+  const { error, value } = ChangePasswordValidation.validate(req.body);
+
+  if (error) {
+    res.status(400).json({ error: error.details.map(d => d.message) });
+    return;
+  }
+
+  const repository = getManager().getRepository(User);
+  const dbUser = await repository.findOne({ where: { id: user.id } });
+
+  if (!dbUser) {
+    res.status(404).json({ message: "User not found" });
+    return;
+  }
+
+  const isValid = await bcryptjs.compare(value.old_password, dbUser.password);
+  if (!isValid) {
+    res.status(400).json({ message: "Old password is incorrect" });
+    return;
+  }
+
+  const hashedNewPassword = await bcryptjs.hash(value.new_password, 10);
+  await repository.update(user.id, { password: hashedNewPassword });
+
+  res.status(200).json({ message: "Password updated successfully" });
+};
+
+
+
+
+export const ForgotPassword = async (req: Request, res: Response) => {
+
+  const { error, value } = ForgotPasswordValidation.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details.map(d => d.message) });
+  }
+
+  const repository = getManager().getRepository(User);
+  const user = await repository.findOne({ where: { email: value.email } });
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  // הדפסת טוקן/לינק לאיפוס (בהמשך תוכל לשלוח מייל)
+  const resetToken = sign({ id: user.id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
+  const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
+
+  await sendEmail(
+    user.email,
+    "Password Reset",
+    `<p>Click <a href="${resetLink}">here</a> to reset your password</p>`
+  );
+
+  console.log("🔗 Reset link:", resetLink);
+
+  res.status(200).json({ message: "Reset link sent (printed to console for now)" });
 };
