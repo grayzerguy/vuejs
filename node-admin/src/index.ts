@@ -8,10 +8,7 @@ import cookieParser from "cookie-parser";
 import { createConnection } from "typeorm";
 import router from "./routes";
 
-// ✅ בדיקה מוקדמת: האם ה־JWT_SECRET קיים בקובץ env
-if (!process.env.JWT_SECRET) {
-  throw new Error("❌ JWT_SECRET not defined in .env file");
-}
+
 
 createConnection().then(() => {
   const app = express();
@@ -43,6 +40,6 @@ createConnection().then(() => {
 
   app.listen(8000, () => {
     console.log("✅ Server is running on port 8000");
-    console.log(process.env.JWT_SECRET);
+
   });
 });

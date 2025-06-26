@@ -16,7 +16,7 @@ router.get("/user", AuthMiddleware, AuthenticatedUser);
 // יציאה (מנקה את ה-cookie)
 router.post("/logout", AuthMiddleware, Logout);
 router.put("/update-user", AuthMiddleware, authRateLimiter, updateUser);
-router.post("/change-password", AuthMiddleware, ChangePassword);
+router.put("/change-password", AuthMiddleware, ChangePassword);
 
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", verifyResetCodeAndChangePassword);
