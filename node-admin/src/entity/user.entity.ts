@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn  } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 
 
@@ -23,6 +23,15 @@ export class User {
 
     @CreateDateColumn()
     created_at: Date; // ← זה יתווסף אוטומטית ע"י TypeORM
+
+    @Column({ nullable: true })
+    reset_code: string;
+
+    @Column({ nullable: true })
+    reset_code_expires_at: Date;
+
+
+
 }
 
 

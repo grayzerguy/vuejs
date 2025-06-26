@@ -1,7 +1,8 @@
 import { Router } from "express";
 
 import { AuthMiddleware } from "./middleware/auth.middleware";
-import { AuthenticatedUser, ChangePassword, ForgotPassword, Login, Logout, Register, updateUser } from "./controller/auth.controller";
+import { AuthenticatedUser, ChangePassword, forgotPassword, Login, Logout, Register, updateUser, verifyResetCodeAndChangePassword } from "./controller/auth.controller";
+
 import { authRateLimiter } from "./middleware/rate-limit.middleware";
 
 
@@ -16,7 +17,8 @@ router.get("/user", AuthMiddleware, AuthenticatedUser);
 router.post("/logout", AuthMiddleware, Logout);
 router.put("/update-user", AuthMiddleware, authRateLimiter, updateUser);
 router.post("/change-password", AuthMiddleware, ChangePassword);
-router.post("/forgot-password",  ForgotPassword as any);
 
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", verifyResetCodeAndChangePassword);
 
 export default router;
