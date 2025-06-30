@@ -29,6 +29,7 @@ export class User {
 
     @Column({ nullable: true })
     reset_code_expires_at: Date;
+    updated_at: any;
 
 
 

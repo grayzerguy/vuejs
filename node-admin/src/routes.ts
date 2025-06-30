@@ -1,24 +1,31 @@
 import { Router } from "express";
 
 import { AuthMiddleware } from "./middleware/auth.middleware";
-import { AuthenticatedUser, ChangePassword, forgotPassword, Login, Logout, Register, updateUser, verifyResetCodeAndChangePassword } from "./controller/auth.controller";
 
-import { authRateLimiter } from "./middleware/rate-limit.middleware";
+
+
+import { AuthenticatedUser, ChangePassword, ForgotPassword, Login, Logout, Register, UpdateUser, VerifyResetCodeAndChangePassword } from "./controller/auth.controller";
+import { CreateUser, DeleteUser, GetAllUsers, GetUser } from "./controller/user.controller";
+import { AuthRateLimiter } from "./middleware/rate-limit.middleware";
+
 
 
 const router = Router();
-// הרשמה
-router.post("/register", authRateLimiter, Register);
-// התחברות
-router.post("/login", authRateLimiter, Login);
-// משתמש מחובר (דורש טוקן jwt)
-router.get("/user", AuthMiddleware, AuthenticatedUser);
-// יציאה (מנקה את ה-cookie)
-router.post("/logout", AuthMiddleware, Logout);
-router.put("/update-user", AuthMiddleware, authRateLimiter, updateUser);
-router.put("/change-password", AuthMiddleware, ChangePassword);
 
-router.post("/forgot-password", forgotPassword);
-router.post("/reset-password", verifyResetCodeAndChangePassword);
+router.post("/register", AuthRateLimiter, Register);// Register a new user
+router.post("/login", AuthRateLimiter, Login);// Login user
+router.get("/user", AuthMiddleware, AuthenticatedUser);// Get authenticated user
+router.post("/logout", AuthMiddleware, Logout);// Logout user
+router.put("/update-user", AuthMiddleware, AuthRateLimiter, UpdateUser);// Update user
+router.put("/change-password", AuthMiddleware, ChangePassword);// Change user password
+router.post("/forgot-password", ForgotPassword);// Forgot password
+router.post("/reset-password", VerifyResetCodeAndChangePassword);// Reset password
+
+
+router.get("/users", AuthMiddleware, GetAllUsers);// Get all users
+router.get("/users/:id", AuthMiddleware, GetUser);// Get user by ID
+router.post("/users", AuthMiddleware, CreateUser);// Create a new user
+router.put('/api/users/:id', AuthMiddleware, UpdateUser);// Update user by ID
+router.delete('/api/users/:id', AuthMiddleware, DeleteUser);// Delete user by ID
 
 export default router;

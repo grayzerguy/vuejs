@@ -105,7 +105,7 @@ export const Logout = async (req: Request, res: Response): Promise<void> => {
   });
   res.send({ message: "Logged out successfully" });
 };
-export const updateUser = async (req: Request, res: Response): Promise<void> => {
+export const UpdateUser = async (req: Request, res: Response): Promise<void> => {
   const user = req["user"];
   if (!user) {
     res.status(401).send({ message: "Unauthorized" });
@@ -161,7 +161,7 @@ export const ChangePassword = async (req: Request, res: Response): Promise<void>
 
 
 
-export const forgotPassword = async (req: Request, res: Response): Promise<void> => {
+export const ForgotPassword = async (req: Request, res: Response): Promise<void> => {
   try {
     const { error, value } = ForgotPasswordValidation.validate(req.body);
     if (error) {
@@ -217,7 +217,7 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
 
 
 
-export const verifyResetCodeAndChangePassword = async (req: Request, res: Response): Promise<void> => {
+export const VerifyResetCodeAndChangePassword = async (req: Request, res: Response): Promise<void> => {
   try {
     const { error, value } = VerifyResetCodeValidation.validate(req.body);
     if (error) {
