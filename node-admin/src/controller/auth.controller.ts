@@ -55,6 +55,7 @@ export const Register = async (req: Request, res: Response): Promise<void> => {
 
 export const Login = async (req: Request, res: Response): Promise<void> => {
   try {
+    
     const repository = getManager().getRepository(User);
     const user = await repository.findOne({ where: { email: req.body.email } });
 
@@ -79,6 +80,7 @@ export const Login = async (req: Request, res: Response): Promise<void> => {
 
 export const AuthenticatedUser = async (req: Request, res: Response): Promise<void> => {
   try {
+
     const jwt = req.cookies["jwt"];
     const payload: any = verify(jwt, process.env.JWT_SECRET || "secret");
 
@@ -99,6 +101,7 @@ export const AuthenticatedUser = async (req: Request, res: Response): Promise<vo
 
 
 export const Logout = async (req: Request, res: Response): Promise<void> => {
+  console.log("✅ entered Logout controller");
   res.cookie("jwt", "", {
     httpOnly: true,
     maxAge: 0,
@@ -106,6 +109,8 @@ export const Logout = async (req: Request, res: Response): Promise<void> => {
   res.send({ message: "Logged out successfully" });
 };
 export const UpdateUser = async (req: Request, res: Response): Promise<void> => {
+  
+  
   const user = req["user"];
   if (!user) {
     res.status(401).send({ message: "Unauthorized" });
