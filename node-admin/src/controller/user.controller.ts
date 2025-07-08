@@ -6,13 +6,12 @@ import bcryptjs from "bcryptjs";
 
 
 export const GetAllUsers = async (req: Request, res: Response): Promise<void> => {
-    console.log("📥 GetAllUsers endpoint was hit");
+
 
     try {
         const repository = getManager().getRepository(User);
-        const users = await repository.find();
+        const users = await repository.find({ relations: ['role'] });
 
-        console.log("📦 Found users:", users.length);
 
         const data = users.map(({ password, ...rest }) => rest);
 
@@ -45,37 +44,45 @@ export const GetUser = async (req: Request, res: Response) => {
 
     const id = Number(req.params.id);
     const { password, ...user } = await repository.findOne({
-        where: { id }
+        where: { id },
+        relations: ['role']
     });
 
     res.send(user);
 }
 
 
-export const UpdateUserById = async (req: Request, res: Response) => {
+
+export const UpdateUserById = async (req: Request, res: Response): Promise<void> => {
+    const id = Number(req.params.id);
     const { role_id, ...body } = req.body;
 
     const repository = getManager().getRepository(User);
 
-
-    await repository.update(req.params.id, {
-        ...body,
-        // role: {
-        //     id: role_id
-        // }
-    });
-
-    const id = Number(req.params.id);
-
-    const userEntity = await repository.findOne({ where: { id } });
-    if (!userEntity) {
-        return res.status(404).send({ message: "User not found" });
+    const userExists = await repository.findOne({ where: { id }, relations: ['role'] })
+    if (!userExists) {
+        res.status(404).json({ message: "User not found" });
+        return;
     }
 
-    const { password, ...user } = userEntity;
+    await repository.update(id, {
+        ...body,
+        role: {
+            id: role_id
+        }
+    });
 
-    res.status(202).send(user);
-}
+
+    const updatedUser = await repository.findOne({ where: { id } });
+
+    if (!updatedUser) {
+        res.status(500).json({ message: "Error retrieving updated user" });
+        return;
+    }
+
+    const { password, ...userWithoutPassword } = updatedUser;
+    res.status(202).json(userWithoutPassword);
+};
 
 export const DeleteUserById = async (req: Request, res: Response) => {
     const repository = getManager().getRepository(User);
