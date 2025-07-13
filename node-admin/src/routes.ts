@@ -2,8 +2,9 @@ import { Router } from "express";
 import { AuthMiddleware } from "./middleware/auth.middleware";
 import { AuthenticatedUser, ChangePassword, ForgotPassword, Login, Logout, Register, UpdateUser, VerifyResetCodeAndChangePassword } from "./controller/auth.controller";
 import { AuthRateLimiter } from "./middleware/rate-limit.middleware";
-import { CreateUser,  DeleteUserById,  GetAllUsers, GetUser, UpdateUserById } from "./controller/user.controller";
-
+import { CreateUser, DeleteUserById, GetAllUsers, GetUser, UpdateUserById } from "./controller/user.controller";
+import { Permissions } from "./controller/permission.controller";
+import { CreateRole, DeleteRole, GetRole, Roles, UpdateRole } from "./controller/role.controller";
 
 
 
@@ -22,6 +23,21 @@ router.get("/all-users", AuthMiddleware, GetAllUsers);// Get all users (for admi
 router.post('/users', AuthMiddleware, CreateUser);// Create a new user (for admin purposes, protected by AuthMiddleware)
 router.get('/get-one-user-by-id/:id', AuthMiddleware, GetUser);// Get a user by ID (for admin purposes, protected by AuthMiddleware)
 router.put('/update-user-by-id/:id', AuthMiddleware, UpdateUserById);// Update a user by ID (for admin purposes, protected by AuthMiddleware)
-router.delete('/delete-users-by-id/:id', AuthMiddleware, DeleteUserById  );// Delete a user by ID (for admin purposes, protected by AuthMiddleware)
+router.delete('/delete-users-by-id/:id', AuthMiddleware, DeleteUserById);// Delete a user by ID (for admin purposes, protected by AuthMiddleware)
+
+router.get('/permissions', AuthMiddleware, Permissions);
+
+router.get('/roles', AuthMiddleware, Roles);
+router.post('/roles', AuthMiddleware, CreateRole);
+router.get('/roles/:id', AuthMiddleware, GetRole);
+router.put('/roles/:id', AuthMiddleware, UpdateRole);
+router.delete('/roles/:id', AuthMiddleware, DeleteRole);
+
+
+
+
+
+
+
 
 export default router;
