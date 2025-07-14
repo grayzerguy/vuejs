@@ -5,6 +5,7 @@ import { AuthRateLimiter } from "./middleware/rate-limit.middleware";
 import { CreateUser, DeleteUserById, GetAllUsers, GetUser, UpdateUserById } from "./controller/user.controller";
 import { Permissions } from "./controller/permission.controller";
 import { CreateRole, DeleteRole, GetRole, Roles, UpdateRole } from "./controller/role.controller";
+import { CreateProduct, DeleteProduct, GetProduct, Products, UpdateProduct } from "./controller/product.controller";
 
 
 
@@ -20,7 +21,7 @@ router.post("/forgot-password", ForgotPassword);// Forgot password
 router.post("/reset-password", VerifyResetCodeAndChangePassword);// Reset password
 
 router.get("/all-users", AuthMiddleware, GetAllUsers);// Get all users (for admin purposes, protected by AuthMiddleware if needed)
-router.post('/users', AuthMiddleware, CreateUser);// Create a new user (for admin purposes, protected by AuthMiddleware)
+router.post('/users', CreateUser);// Create a new user (for admin purposes, protected by AuthMiddleware)
 router.get('/get-one-user-by-id/:id', AuthMiddleware, GetUser);// Get a user by ID (for admin purposes, protected by AuthMiddleware)
 router.put('/update-user-by-id/:id', AuthMiddleware, UpdateUserById);// Update a user by ID (for admin purposes, protected by AuthMiddleware)
 router.delete('/delete-users-by-id/:id', AuthMiddleware, DeleteUserById);// Delete a user by ID (for admin purposes, protected by AuthMiddleware)
@@ -34,7 +35,11 @@ router.put('/roles/:id', AuthMiddleware, UpdateRole);
 router.delete('/roles/:id', AuthMiddleware, DeleteRole);
 
 
-
+router.get('/products', AuthMiddleware, Products);
+router.post('/products', AuthMiddleware, CreateProduct);
+router.get('/products/:id', AuthMiddleware, GetProduct);
+router.put('/products/:id', AuthMiddleware, UpdateProduct);
+router.delete('/products/:id', AuthMiddleware, DeleteProduct);
 
 
 
