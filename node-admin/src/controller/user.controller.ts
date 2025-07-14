@@ -7,6 +7,7 @@ import bcryptjs from "bcryptjs";
 
 export const GetAllUsers = async (req: Request, res: Response) => {
     try {
+        
         const repository = getManager().getRepository(User);
         const users = await repository.find({ relations: ['role'] });
         const data = users.map(({ password, ...rest }) => rest);

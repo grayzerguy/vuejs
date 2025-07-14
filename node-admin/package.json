@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon src/index.ts",
-     "roles:seed": "ts-node src/seeder/role.seeder.ts"
+    "roles:seed": "ts-node src/seeder/role.seeder.ts",
+    "products:seed": "ts-node src/seeder/product.seeder.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +17,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/express-rate-limit": "^5.1.3",
+    "@types/faker": "^6.6.8",
     "@types/helmet": "^0.0.48",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.0.3",
@@ -33,6 +35,7 @@
     "express-rate-limit": "^7.5.1",
     "express-validation": "^4.1.1",
     "express-validator": "^7.2.1",
+    "faker": "^5.5.3",
     "helmet": "^8.1.0",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
