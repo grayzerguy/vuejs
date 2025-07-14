@@ -22,26 +22,19 @@ export const Products = async (req: Request, res: Response) => {
         }
     });
 }
-
 export const CreateProduct = async (req: Request, res: Response) => {
     const repository = getManager().getRepository(Product);
-
     const product = await repository.save(req.body)
-
     res.status(201).send(product);
 }
 
 export const GetProduct = async (req: Request, res: Response) => {
     const repository = getManager().getRepository(Product);
-
     const id = Number(req.params.id);
-
     res.send(await repository.findOne({ where: { id } }));
 }
-
 export const UpdateProduct = async (req: Request, res: Response) => {
     const repository = getManager().getRepository(Product);
-
     await repository.update(req.params.id, req.body);
     const id = Number(req.params.id);
     res.status(202).send(await repository.findOne({ where: { id } }));
@@ -49,8 +42,6 @@ export const UpdateProduct = async (req: Request, res: Response) => {
 
 export const DeleteProduct = async (req: Request, res: Response) => {
     const repository = getManager().getRepository(Product);
-
     await repository.delete(req.params.id);
-
     res.status(204).send(null);
 }
