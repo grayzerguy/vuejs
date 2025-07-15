@@ -6,6 +6,7 @@ import { CreateUser, DeleteUserById, GetAllUsers, GetUser, UpdateUserById } from
 import { Permissions } from "./controller/permission.controller";
 import { CreateRole, DeleteRole, GetRole, Roles, UpdateRole } from "./controller/role.controller";
 import { CreateProduct, DeleteProduct, GetProduct, Products, UpdateProduct } from "./controller/product.controller";
+import { Upload } from "./controller/image.controller";
 
 
 
@@ -43,6 +44,7 @@ router.delete('/products/:id', AuthMiddleware, DeleteProduct);
 
 
 
+router.post('/upload', AuthMiddleware, Upload);
 
 
 export default router;
