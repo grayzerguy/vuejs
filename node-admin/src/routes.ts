@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express, { Router } from "express";
 import { AuthMiddleware } from "./middleware/auth.middleware";
 import { AuthenticatedUser, ChangePassword, ForgotPassword, Login, Logout, Register, UpdateUser, VerifyResetCodeAndChangePassword } from "./controller/auth.controller";
 import { AuthRateLimiter } from "./middleware/rate-limit.middleware";
@@ -7,6 +7,7 @@ import { Permissions } from "./controller/permission.controller";
 import { CreateRole, DeleteRole, GetRole, Roles, UpdateRole } from "./controller/role.controller";
 import { CreateProduct, DeleteProduct, GetProduct, Products, UpdateProduct } from "./controller/product.controller";
 import { Upload } from "./controller/image.controller";
+import { Orders } from "./controller/order.controller";
 
 
 
@@ -43,8 +44,10 @@ router.put('/products/:id', AuthMiddleware, UpdateProduct);
 router.delete('/products/:id', AuthMiddleware, DeleteProduct);
 
 
-
 router.post('/upload', AuthMiddleware, Upload);
+router.use('/uploads', express.static('./uploads'));
+
+router.get('/orders', AuthMiddleware, Orders);
 
 
 export default router;
