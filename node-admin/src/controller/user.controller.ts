@@ -7,11 +7,37 @@ import bcryptjs from "bcryptjs";
 
 export const GetAllUsers = async (req: Request, res: Response) => {
     try {
-        
+
+        const take = 15;
+        const page = parseInt(req.query.page as string || '1');
+
         const repository = getManager().getRepository(User);
-        const users = await repository.find({ relations: ['role'] });
-        const data = users.map(({ password, ...rest }) => rest);
-        res.status(200).json(data);
+
+
+        // const users = await repository.find({ relations: ['role'] });
+        // const data = users.map(({ password, ...rest }) => rest);
+        // res.status(200).json(data);
+
+
+        const [data, total] = await repository.findAndCount({
+            take,
+            skip: (page - 1) * take,
+            relations: ['role']
+        })
+
+        res.send({
+            data: data.map(u => {
+                const { password, ...data } = u;
+
+                return data;
+            }),
+            meta: {
+                total,
+                page,
+                last_page: Math.ceil(total / take)
+            }
+        });
+
     } catch (err) {
         console.error("❌ Error fetching users:", err);
         res.status(500).json({ message: "Error fetching users" });
