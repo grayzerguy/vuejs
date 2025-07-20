@@ -7,7 +7,7 @@ import { Permissions } from "./controller/permission.controller";
 import { CreateRole, DeleteRole, GetRole, Roles, UpdateRole } from "./controller/role.controller";
 import { CreateProduct, DeleteProduct, GetProduct, Products, UpdateProduct } from "./controller/product.controller";
 import { Upload } from "./controller/image.controller";
-import { Export, Orders } from "./controller/order.controller";
+import { Chart, Export, Orders } from "./controller/order.controller";
 
 
 
@@ -49,5 +49,7 @@ router.use('/uploads', express.static('./uploads'));
 
 router.get('/orders', AuthMiddleware, Orders);
 router.post('/export', AuthMiddleware, Export);
+
+router.get('/chart', AuthMiddleware , Chart);
 
 export default router;
