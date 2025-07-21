@@ -23,34 +23,34 @@ router.put("/change-password", AuthMiddleware, ChangePassword);// Change user pa
 router.post("/forgot-password", ForgotPassword);// Forgot password
 router.post("/reset-password", VerifyResetCodeAndChangePassword);// Reset password
 
-router.get("/all-users", AuthMiddleware,PermissionMiddleware('users'), GetAllUsers);// Get all users (for admin purposes, protected by AuthMiddleware if needed)
-router.post('/users', CreateUser);// Create a new user (for admin purposes, protected by AuthMiddleware)
-router.get('/get-one-user-by-id/:id', AuthMiddleware, GetUser);// Get a user by ID (for admin purposes, protected by AuthMiddleware)
-router.put('/update-user-by-id/:id', AuthMiddleware, UpdateUserById);// Update a user by ID (for admin purposes, protected by AuthMiddleware)
-router.delete('/delete-users-by-id/:id', AuthMiddleware, DeleteUserById);// Delete a user by ID (for admin purposes, protected by AuthMiddleware)
+router.get("/all-users", AuthMiddleware, PermissionMiddleware('users'), GetAllUsers);// Get all users (for admin purposes, protected by AuthMiddleware if needed)
+router.post('/users', AuthMiddleware, AuthMiddleware, PermissionMiddleware('users'), CreateUser);// Create a new user (for admin purposes, protected by AuthMiddleware)
+router.get('/get-one-user-by-id/:id', AuthMiddleware, PermissionMiddleware('users'), AuthMiddleware, GetUser);// Get a user by ID (for admin purposes, protected by AuthMiddleware)
+router.put('/update-user-by-id/:id', AuthMiddleware, PermissionMiddleware('users'), AuthMiddleware, UpdateUserById);// Update a user by ID (for admin purposes, protected by AuthMiddleware)
+router.delete('/delete-users-by-id/:id', AuthMiddleware, PermissionMiddleware('users'), AuthMiddleware, DeleteUserById);// Delete a user by ID (for admin purposes, protected by AuthMiddleware)
 
 router.get('/permissions', AuthMiddleware, Permissions);
 
-router.get('/roles', AuthMiddleware, Roles);
-router.post('/roles', AuthMiddleware, CreateRole);
-router.get('/roles/:id', AuthMiddleware, GetRole);
-router.put('/roles/:id', AuthMiddleware, UpdateRole);
-router.delete('/roles/:id', AuthMiddleware, DeleteRole);
+router.get('/roles', AuthMiddleware, PermissionMiddleware('roles'), Roles);
+router.post('/roles', AuthMiddleware, PermissionMiddleware('roles'), CreateRole);
+router.get('/roles/:id', AuthMiddleware, PermissionMiddleware('roles'), GetRole);
+router.put('/roles/:id', AuthMiddleware, PermissionMiddleware('roles'), UpdateRole);
+router.delete('/roles/:id', AuthMiddleware, PermissionMiddleware('roles'), DeleteRole);
 
 
-router.get('/products', AuthMiddleware, Products);
-router.post('/products', AuthMiddleware, CreateProduct);
-router.get('/products/:id', AuthMiddleware, GetProduct);
-router.put('/products/:id', AuthMiddleware, UpdateProduct);
-router.delete('/products/:id', AuthMiddleware, DeleteProduct);
+router.get('/products', AuthMiddleware, PermissionMiddleware('products'), Products);
+router.post('/products', AuthMiddleware, PermissionMiddleware('products'), CreateProduct);
+router.get('/products/:id', AuthMiddleware, PermissionMiddleware('products'), GetProduct);
+router.put('/products/:id', AuthMiddleware, PermissionMiddleware('products'), UpdateProduct);
+router.delete('/products/:id', AuthMiddleware, PermissionMiddleware('products'), DeleteProduct);
 
 
-router.post('/upload', AuthMiddleware, Upload);
+router.post('/upload', AuthMiddleware, PermissionMiddleware('products'), Upload);
 router.use('/uploads', express.static('./uploads'));
 
-router.get('/orders', AuthMiddleware, Orders);
-router.post('/export', AuthMiddleware, Export);
+router.get('/orders', AuthMiddleware, PermissionMiddleware('roles'), Orders);
+router.post('/export', AuthMiddleware, PermissionMiddleware('roles'), Export);
 
-router.get('/chart', AuthMiddleware , Chart);
+router.get('/chart', AuthMiddleware, PermissionMiddleware('roles'), Chart);
 
 export default router;
