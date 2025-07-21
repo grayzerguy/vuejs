@@ -8,6 +8,7 @@ import { CreateRole, DeleteRole, GetRole, Roles, UpdateRole } from "./controller
 import { CreateProduct, DeleteProduct, GetProduct, Products, UpdateProduct } from "./controller/product.controller";
 import { Upload } from "./controller/image.controller";
 import { Chart, Export, Orders } from "./controller/order.controller";
+import { PermissionMiddleware } from "./middleware/permission.middleware";
 
 
 
@@ -22,7 +23,7 @@ router.put("/change-password", AuthMiddleware, ChangePassword);// Change user pa
 router.post("/forgot-password", ForgotPassword);// Forgot password
 router.post("/reset-password", VerifyResetCodeAndChangePassword);// Reset password
 
-router.get("/all-users", AuthMiddleware, GetAllUsers);// Get all users (for admin purposes, protected by AuthMiddleware if needed)
+router.get("/all-users", AuthMiddleware,PermissionMiddleware('users'), GetAllUsers);// Get all users (for admin purposes, protected by AuthMiddleware if needed)
 router.post('/users', CreateUser);// Create a new user (for admin purposes, protected by AuthMiddleware)
 router.get('/get-one-user-by-id/:id', AuthMiddleware, GetUser);// Get a user by ID (for admin purposes, protected by AuthMiddleware)
 router.put('/update-user-by-id/:id', AuthMiddleware, UpdateUserById);// Update a user by ID (for admin purposes, protected by AuthMiddleware)
