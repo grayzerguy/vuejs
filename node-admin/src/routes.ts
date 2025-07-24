@@ -24,7 +24,7 @@ router.post("/forgot-password", ForgotPassword);// Forgot password
 router.post("/reset-password", VerifyResetCodeAndChangePassword);// Reset password
 
 router.get("/all-users", AuthMiddleware, PermissionMiddleware('users'), GetAllUsers);// Get all users (for admin purposes, protected by AuthMiddleware if needed)
-router.post('/users', AuthMiddleware, AuthMiddleware, PermissionMiddleware('users'), CreateUser);// Create a new user (for admin purposes, protected by AuthMiddleware)
+router.post('/users', AuthMiddleware, AuthMiddleware, PermissionMiddleware('users'), CreateUser as any);// Create a new user (for admin purposes, protected by AuthMiddleware)
 router.get('/get-one-user-by-id/:id', AuthMiddleware, PermissionMiddleware('users'), AuthMiddleware, GetUser);// Get a user by ID (for admin purposes, protected by AuthMiddleware)
 router.put('/update-user-by-id/:id', AuthMiddleware, PermissionMiddleware('users'), AuthMiddleware, UpdateUserById);// Update a user by ID (for admin purposes, protected by AuthMiddleware)
 router.delete('/delete-users-by-id/:id', AuthMiddleware, PermissionMiddleware('users'), AuthMiddleware, DeleteUserById);// Delete a user by ID (for admin purposes, protected by AuthMiddleware)
